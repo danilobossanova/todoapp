@@ -1,0 +1,6 @@
+-- Dados iniciais para teste
+INSERT INTO tasks (name, description, priority, status, expected_completion_date, created_date)
+VALUES
+    ('Estudar Spring Boot', 'Revisar conceitos de Clean Architecture', 'HIGH', 'OPEN', '2025-08-15', NOW()),
+    ('Implementar testes', 'Criar testes unitários para os serviços', 'MEDIUM', 'PENDING', '2025-08-10', NOW()),
+    ('Documentar API', 'Finalizar documentação Swagger', 'LOW', 'COMPLETED', '2025-08-05', NOW());
