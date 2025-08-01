@@ -69,6 +69,27 @@ public class TaskMapper {
     }
 
     /**
+     * Converte um TaskUpdateRequest em uma nova entidade Task.
+     * Esta conversão é útil para testes unitários isolados.
+     *
+     * @param request DTO de atualização de tarefa
+     * @return Nova instância de Task com os dados do request
+     */
+    public Task toEntity(TaskUpdateRequest request) {
+        if (request == null) {
+            return null;
+        }
+
+        return Task.builder()
+                .name(request.getName())
+                .description(request.getDescription())
+                .expectedCompletionDate(request.getExpectedCompletionDate())
+                .priority(request.getPriority())
+                .build();
+    }
+
+
+    /**
      * Converte uma entidade Task em TaskResponse completo.
      *
      * @param task Entidade Task

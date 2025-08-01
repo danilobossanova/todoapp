@@ -64,13 +64,13 @@ public class GlobalExceptionHandler {
 
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
-                .status(HttpStatus.BAD_REQUEST.value())
-                .error("Status Inválido")
+                .status(HttpStatus.UNPROCESSABLE_ENTITY.value())
+                .error("Transição de status inválida")
                 .message(ex.getMessage())
                 .path(request.getDescription(false).replace("uri=", ""))
                 .build();
 
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+        return ResponseEntity.unprocessableEntity().body(errorResponse);
     }
 
     /**

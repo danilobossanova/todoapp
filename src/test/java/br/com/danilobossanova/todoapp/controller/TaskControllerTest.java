@@ -1,11 +1,14 @@
 package br.com.danilobossanova.todoapp.controller;
 
+import br.com.danilobossanova.todoapp.dto.mapper.TaskMapper;
 import br.com.danilobossanova.todoapp.dto.request.TaskCreateRequest;
 import br.com.danilobossanova.todoapp.dto.request.TaskUpdateRequest;
 import br.com.danilobossanova.todoapp.dto.response.TaskResponse;
 import br.com.danilobossanova.todoapp.entity.Task;
 import br.com.danilobossanova.todoapp.enums.Priority;
 import br.com.danilobossanova.todoapp.enums.Status;
+import br.com.danilobossanova.todoapp.exception.InvalidTaskStatusException;
+import br.com.danilobossanova.todoapp.exception.TaskNotFoundException;
 import br.com.danilobossanova.todoapp.service.TaskService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
@@ -22,6 +25,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -41,10 +45,12 @@ class TaskControllerTest {
     @MockBean
     private TaskService taskService;
 
+    @MockBean
+    private TaskMapper taskMapper;
+
     @Test
     @DisplayName("Deve criar uma tarefa com sucesso e retornar os dados formatados")
     void shouldCreateTaskSuccessfully() throws Exception {
-        // Requisição simulada recebida pela API
         TaskCreateRequest request = TaskCreateRequest.builder()
                 .name("Reunião com equipe")
                 .description("Discutir metas trimestrais")
@@ -52,7 +58,6 @@ class TaskControllerTest {
                 .priority(Priority.HIGH)
                 .build();
 
-        // Entidade simulada retornada pelo serviço
         Task fakeTask = Task.builder()
                 .id(1L)
                 .name(request.getName())
@@ -63,10 +68,20 @@ class TaskControllerTest {
                 .createdDate(LocalDateTime.now())
                 .build();
 
-        // Mock do comportamento do serviço
-        Mockito.when(taskService.createTask(any(Task.class))).thenReturn(fakeTask);
+        TaskResponse fakeResponse = TaskResponse.builder()
+                .id(fakeTask.getId())
+                .name(fakeTask.getName())
+                .description(fakeTask.getDescription())
+                .priority(fakeTask.getPriority())
+                .status(fakeTask.getStatus())
+                .expectedCompletionDate(fakeTask.getExpectedCompletionDate())
+                .createdDate(fakeTask.getCreatedDate())
+                .build();
 
-        // Execução da requisição e validações
+        Mockito.when(taskService.createTask(any(Task.class))).thenReturn(fakeTask);
+        Mockito.when(taskMapper.toEntity(any(TaskCreateRequest.class))).thenReturn(fakeTask);
+        Mockito.when(taskMapper.toResponse(fakeTask)).thenReturn(fakeResponse);
+
         mockMvc.perform(post("/api/v1/tasks")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -108,7 +123,18 @@ class TaskControllerTest {
                 .createdDate(LocalDateTime.now())
                 .build();
 
+        TaskResponse response = TaskResponse.builder()
+                .id(fakeTask.getId())
+                .name(fakeTask.getName())
+                .description(fakeTask.getDescription())
+                .priority(fakeTask.getPriority())
+                .status(fakeTask.getStatus())
+                .expectedCompletionDate(fakeTask.getExpectedCompletionDate())
+                .createdDate(fakeTask.getCreatedDate())
+                .build();
+
         Mockito.when(taskService.findTaskById(10L)).thenReturn(fakeTask);
+        Mockito.when(taskMapper.toResponse(fakeTask)).thenReturn(response);
 
         mockMvc.perform(get("/api/v1/tasks/10"))
                 .andExpect(status().isOk())
@@ -138,8 +164,19 @@ class TaskControllerTest {
                 .createdDate(LocalDateTime.now())
                 .build();
 
-        Mockito.when(taskService.updateTask(Mockito.eq(15L), any(Task.class)))
-                .thenReturn(updatedTask);
+        TaskResponse response = TaskResponse.builder()
+                .id(updatedTask.getId())
+                .name(updatedTask.getName())
+                .description(updatedTask.getDescription())
+                .priority(updatedTask.getPriority())
+                .status(updatedTask.getStatus())
+                .expectedCompletionDate(updatedTask.getExpectedCompletionDate())
+                .createdDate(updatedTask.getCreatedDate())
+                .build();
+
+        Mockito.when(taskService.updateTask(Mockito.eq(15L), any(Task.class))).thenReturn(updatedTask);
+        Mockito.when(taskMapper.toEntity(any(TaskUpdateRequest.class))).thenReturn(updatedTask);
+        Mockito.when(taskMapper.toResponse(updatedTask)).thenReturn(response);
 
         mockMvc.perform(put("/api/v1/tasks/15")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -153,21 +190,32 @@ class TaskControllerTest {
     @Test
     @DisplayName("Deve concluir uma tarefa com sucesso")
     void shouldMarkTaskAsCompleted() throws Exception {
-        Task completedTask = Task.builder()
-                .id(20L)
-                .name("Backup semanal")
-                .description("Backup dos servidores")
-                .priority(Priority.LOW)
+        Task task = Task.builder()
+                .id(22L)
+                .name("Entrega final")
+                .description("Finalizar entregas")
+                .priority(Priority.HIGH)
                 .status(Status.COMPLETED)
-                .expectedCompletionDate(LocalDate.now())
+                .expectedCompletionDate(LocalDate.now().plusDays(1))
                 .createdDate(LocalDateTime.now())
                 .build();
 
-        Mockito.when(taskService.markTaskAsCompleted(20L)).thenReturn(completedTask);
+        TaskResponse response = TaskResponse.builder()
+                .id(task.getId())
+                .name(task.getName())
+                .description(task.getDescription())
+                .priority(task.getPriority())
+                .status(task.getStatus())
+                .expectedCompletionDate(task.getExpectedCompletionDate())
+                .createdDate(task.getCreatedDate())
+                .build();
 
-        mockMvc.perform(patch("/api/v1/tasks/20/concluir"))
+        Mockito.when(taskService.markTaskAsCompleted(22L)).thenReturn(task);
+        Mockito.when(taskMapper.toResponse(task)).thenReturn(response);
+
+        mockMvc.perform(patch("/api/v1/tasks/22/complete"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(20))
+                .andExpect(jsonPath("$.id").value(22))
                 .andExpect(jsonPath("$.status").value("COMPLETED"));
     }
 
@@ -183,21 +231,31 @@ class TaskControllerTest {
     @Test
     @DisplayName("Deve retornar 404 ao buscar tarefa inexistente")
     void shouldReturnNotFoundWhenTaskDoesNotExist() throws Exception {
-        Mockito.when(taskService.findTaskById(999L))
-                .thenThrow(new RuntimeException("Tarefa não encontrada"));
+        Long nonExistentId = 999L;
 
-        mockMvc.perform(get("/api/v1/tasks/999"))
-                .andExpect(status().isNotFound());
+        given(taskService.findTaskById(nonExistentId))
+                .willThrow(TaskNotFoundException.withId(nonExistentId));
+
+        mockMvc.perform(get("/api/v1/tasks/{id}", nonExistentId))
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.error").value("Tarefa Não Encontrada"))
+                .andExpect(jsonPath("$.message").value("Tarefa não encontrada com ID: 999"));
     }
 
     @Test
     @DisplayName("Deve retornar 422 ao tentar concluir uma tarefa com status inválido")
     void shouldReturnUnprocessableEntityWhenInvalidStatusTransition() throws Exception {
         Mockito.when(taskService.markTaskAsCompleted(888L))
-                .thenThrow(new IllegalStateException("Status inválido para conclusão"));
+                .thenThrow(new InvalidTaskStatusException("Status inválido para conclusão"));
 
         mockMvc.perform(patch("/api/v1/tasks/888/concluir"))
-                .andExpect(status().isUnprocessableEntity());
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.status").value(422))
+                .andExpect(jsonPath("$.error").value("Transição de status inválida"))
+                .andExpect(jsonPath("$.message").value("Status inválido para conclusão"))
+                .andExpect(jsonPath("$.path").value("/api/v1/tasks/888/concluir"));
     }
 
     @Test

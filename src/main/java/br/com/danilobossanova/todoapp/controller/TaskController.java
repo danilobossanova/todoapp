@@ -73,6 +73,13 @@ public class TaskController {
             @ApiResponse(responseCode = "400", description = "Parâmetros de consulta inválidos",
                     content = @Content)
     })
+    @CrossOrigin(
+            origins = {"http://localhost:3000", "http://localhost:4200"},
+            methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE},
+            allowedHeaders = "*",
+            allowCredentials = "true",
+            maxAge = 3600
+    )
     public ResponseEntity<Page<TaskSummaryResponse>> listarTarefas(
             @Parameter(description = "Filtro por nome (busca parcial)")
             @RequestParam(required = false) String nome,
@@ -129,6 +136,13 @@ public class TaskController {
             @ApiResponse(responseCode = "404", description = "Tarefa não encontrada",
                     content = @Content)
     })
+    @CrossOrigin(
+            origins = {"http://localhost:3000", "http://localhost:4200"},
+            methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE},
+            allowedHeaders = "*",
+            allowCredentials = "true",
+            maxAge = 3600
+    )
     public ResponseEntity<TaskResponse> buscarTarefaPorId(
             @Parameter(description = "ID da tarefa")
             @PathVariable Long id) {
@@ -158,6 +172,13 @@ public class TaskController {
             @ApiResponse(responseCode = "400", description = "Dados de entrada inválidos",
                     content = @Content)
     })
+    @CrossOrigin(
+            origins = {"http://localhost:3000", "http://localhost:4200"},
+            methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE},
+            allowedHeaders = "*",
+            allowCredentials = "true",
+            maxAge = 3600
+    )
     public ResponseEntity<TaskResponse> criarTarefa(
             @Parameter(description = "Dados para criação da tarefa")
             @Valid @RequestBody TaskCreateRequest request) {
@@ -198,6 +219,13 @@ public class TaskController {
             @ApiResponse(responseCode = "422", description = "Tarefa não pode ser editada (status COMPLETED)",
                     content = @Content)
     })
+    @CrossOrigin(
+            origins = {"http://localhost:3000", "http://localhost:4200"},
+            methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE},
+            allowedHeaders = "*",
+            allowCredentials = "true",
+            maxAge = 3600
+    )
     public ResponseEntity<TaskResponse> atualizarTarefa(
             @Parameter(description = "ID da tarefa")
             @PathVariable Long id,
@@ -238,6 +266,13 @@ public class TaskController {
             @ApiResponse(responseCode = "404", description = "Tarefa não encontrada",
                     content = @Content)
     })
+    @CrossOrigin(
+            origins = {"http://localhost:3000", "http://localhost:4200"},
+            methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE},
+            allowedHeaders = "*",
+            allowCredentials = "true",
+            maxAge = 3600
+    )
     public ResponseEntity<Void> removerTarefa(
             @Parameter(description = "ID da tarefa")
             @PathVariable Long id) {
@@ -269,6 +304,13 @@ public class TaskController {
             @ApiResponse(responseCode = "422", description = "Transição de status inválida",
                     content = @Content)
     })
+    @CrossOrigin(
+            origins = {"http://localhost:3000", "http://localhost:4200"},
+            methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE},
+            allowedHeaders = "*",
+            allowCredentials = "true",
+            maxAge = 3600
+    )
     public ResponseEntity<TaskResponse> concluirTarefa(
             @Parameter(description = "ID da tarefa")
             @PathVariable Long id) {
@@ -301,6 +343,13 @@ public class TaskController {
             @ApiResponse(responseCode = "422", description = "Transição de status inválida",
                     content = @Content)
     })
+    @CrossOrigin(
+            origins = {"http://localhost:3000", "http://localhost:4200"},
+            methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE},
+            allowedHeaders = "*",
+            allowCredentials = "true",
+            maxAge = 3600
+    )
     public ResponseEntity<TaskResponse> marcarComoPendente(
             @Parameter(description = "ID da tarefa")
             @PathVariable Long id) {
@@ -333,6 +382,13 @@ public class TaskController {
             @ApiResponse(responseCode = "422", description = "Transição de status inválida",
                     content = @Content)
     })
+    @CrossOrigin(
+            origins = {"http://localhost:3000", "http://localhost:4200"},
+            methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE},
+            allowedHeaders = "*",
+            allowCredentials = "true",
+            maxAge = 3600
+    )
     public ResponseEntity<TaskResponse> reabrirTarefa(
             @Parameter(description = "ID da tarefa")
             @PathVariable Long id) {
