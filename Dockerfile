@@ -1,5 +1,6 @@
-FROM eclipse-temurin:17-jdk-alpine
+FROM eclipse-temurin:21-alpine AS builder
 VOLUME /tmp
-ARG JAR_FILE=target/*.jar
-COPY ${JAR_FILE} app.jar
-ENTRYPOINT ["java", "-jar", "/app.jar"]
+WORKDIR /app
+COPY target/todoapp-0.0.1-SNAPSHOT.jar app.jar
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "app.jar"]
