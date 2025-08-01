@@ -42,10 +42,19 @@ public class TaskServiceImpl implements TaskService {
      */
     @Override
     public Task createTask(Task task) {
-        log.info("Criando nova tarefa: {}", task.getName());
+
+        if (task == null) {
+            throw new IllegalArgumentException("Dados da tarefa não podem ser nulos");
+        }
 
         // Validações de negócio
         validateTaskData(task);
+
+        // Verifica duplicidade de nome
+        if (existsTaskWithName(task.getName())) {
+            log.warn("Tentativa de criar tarefa com nome duplicado: {}", task.getName());
+            throw new IllegalArgumentException("Já existe uma tarefa com este nome");
+        }
 
         // Define status inicial se não informado
         if (task.getStatus() == null) {
@@ -55,12 +64,6 @@ public class TaskServiceImpl implements TaskService {
         // Valida se o status inicial é OPEN
         if (task.getStatus() != Status.OPEN) {
             throw new IllegalArgumentException("Novas tarefas devem ser criadas com status 'Aberta'");
-        }
-
-        // Verifica duplicidade de nome (se necessário)
-        if (existsTaskWithName(task.getName())) {
-            log.warn("Tentativa de criar tarefa com nome duplicado: {}", task.getName());
-            throw new IllegalArgumentException("Já existe uma tarefa com este nome");
         }
 
         Task savedTask = taskRepository.save(task);
