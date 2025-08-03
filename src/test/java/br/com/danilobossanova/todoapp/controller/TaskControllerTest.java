@@ -15,26 +15,37 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-/**
- * Teste de integração para o endpoint de criação de tarefas no TaskController.
- * Verifica a resposta HTTP e os dados retornados com base em um mock da TaskService.
- */
-@WebMvcTest(TaskController.class)
+@SpringBootTest
+@AutoConfigureMockMvc
 class TaskControllerTest {
+
+    @TestConfiguration
+    static class MockConfig {
+        @Bean
+        public TaskService taskService() {
+            return Mockito.mock(TaskService.class);
+        }
+
+        @Bean
+        public TaskMapper taskMapper() {
+            return Mockito.mock(TaskMapper.class);
+        }
+    }
 
     @Autowired
     private MockMvc mockMvc;
@@ -42,10 +53,10 @@ class TaskControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @MockBean
+    @Autowired
     private TaskService taskService;
 
-    @MockBean
+    @Autowired
     private TaskMapper taskMapper;
 
     @Test
@@ -154,6 +165,16 @@ class TaskControllerTest {
                 .priority(Priority.HIGH)
                 .build();
 
+        Task existingTask = Task.builder()
+                .id(15L)
+                .name("Documento antigo")
+                .description("Versão antiga")
+                .expectedCompletionDate(LocalDate.now().plusDays(1))
+                .priority(Priority.MEDIUM)
+                .status(Status.PENDING)
+                .createdDate(LocalDateTime.now())
+                .build();
+
         Task updatedTask = Task.builder()
                 .id(15L)
                 .name(updateRequest.getName())
@@ -174,8 +195,9 @@ class TaskControllerTest {
                 .createdDate(updatedTask.getCreatedDate())
                 .build();
 
-        Mockito.when(taskService.updateTask(Mockito.eq(15L), any(Task.class))).thenReturn(updatedTask);
-        Mockito.when(taskMapper.toEntity(any(TaskUpdateRequest.class))).thenReturn(updatedTask);
+        Mockito.when(taskService.findTaskById(15L)).thenReturn(existingTask);
+        Mockito.when(taskMapper.updateEntity(existingTask, updateRequest)).thenReturn(updatedTask);
+        Mockito.when(taskService.updateTask(15L, updatedTask)).thenReturn(updatedTask);
         Mockito.when(taskMapper.toResponse(updatedTask)).thenReturn(response);
 
         mockMvc.perform(put("/api/v1/tasks/15")
@@ -213,7 +235,7 @@ class TaskControllerTest {
         Mockito.when(taskService.markTaskAsCompleted(22L)).thenReturn(task);
         Mockito.when(taskMapper.toResponse(task)).thenReturn(response);
 
-        mockMvc.perform(patch("/api/v1/tasks/22/complete"))
+        mockMvc.perform(patch("/api/v1/tasks/22/concluir"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(22))
                 .andExpect(jsonPath("$.status").value("COMPLETED"));
