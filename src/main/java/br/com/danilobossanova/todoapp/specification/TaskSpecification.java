@@ -185,11 +185,18 @@ public class TaskSpecification {
     public static Specification<Task> withAdvancedFilters(String name, Priority priority, Status status,
                                                           LocalDate createdFrom, LocalDate createdTo,
                                                           Boolean includeOverdue) {
-        return Specification.where(hasName(name))
-                .and(hasPriority(priority))
-                .and(hasStatus(status))
-                .and(createdFrom != null ? createdAfter(createdFrom) : null)
-                .and(createdTo != null ? createdBefore(createdTo) : null)
-                .and(Boolean.TRUE.equals(includeOverdue) ? isOverdue() : null);
+        // Inicializa a Specification com o primeiro filtro.
+        // Se o filtro for nulo, a specification sera nula.
+        Specification<Task> spec = hasName(name);
+
+        // Usa o metodo `and()` para combinar as especificacoes.
+        // O metodo `and()` é inteligente o suficiente para lidar com `null`.
+        spec = spec.and(hasPriority(priority));
+        spec = spec.and(hasStatus(status));
+        spec = spec.and(createdFrom != null ? createdAfter(createdFrom) : null);
+        spec = spec.and(createdTo != null ? createdBefore(createdTo) : null);
+        spec = spec.and(Boolean.TRUE.equals(includeOverdue) ? isOverdue() : null);
+
+        return spec;
     }
 }
