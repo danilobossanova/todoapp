@@ -306,7 +306,8 @@ public class TaskController {
     })
     @CrossOrigin(
             origins = {"http://localhost:3000", "http://localhost:4200"},
-            methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE},
+            methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE,
+                    RequestMethod.PATCH},
             allowedHeaders = "*",
             allowCredentials = "true",
             maxAge = 3600
@@ -345,7 +346,7 @@ public class TaskController {
     })
     @CrossOrigin(
             origins = {"http://localhost:3000", "http://localhost:4200"},
-            methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE},
+            methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.PATCH},
             allowedHeaders = "*",
             allowCredentials = "true",
             maxAge = 3600
@@ -384,7 +385,7 @@ public class TaskController {
     })
     @CrossOrigin(
             origins = {"http://localhost:3000", "http://localhost:4200"},
-            methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE},
+            methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.PATCH},
             allowedHeaders = "*",
             allowCredentials = "true",
             maxAge = 3600
